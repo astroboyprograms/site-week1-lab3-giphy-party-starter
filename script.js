@@ -1,5 +1,18 @@
+
+
+const searchForm = document.getElementById('search-form')
+const searchInput = document.getElementById('search-input')
+const searchButton = document.getElementById('search-button')
+
+
 // Global Constants
-const apiKey = "MY_API_KEY"
+const apiKey = '10mifjR4WemBpAtdVNLewcDE36qiVPlO';
+const limit = 25;
+const RATING = 'g';
+
+
+
+
 
 /**
  * Update the DOM to display results from the Giphy API query.
@@ -9,7 +22,17 @@ const apiKey = "MY_API_KEY"
  *
  */
 function displayResults(results) {
-  // YOUR CODE HERE
+  const resultsContainer = document.getElementById('gif-results');
+  resultsContainer.innerHTML = '';
+
+  for (let gif of results.data) {
+    const newGif = document.createElement('img');
+    //newGif.src = gif.images.original.url;
+    newGif.src = gif.images.fixed_width.url;
+
+    resultsContainer.appendChild(newGif);
+}
+  
 }
 
 /**
@@ -21,6 +44,14 @@ function displayResults(results) {
  */
 async function getGiphyApiResults(searchTerm) {
   // YOUR CODE HERE
+  const url = `http://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=${apiKey}&limit=${limit}&rating=${RATING}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log(data);
+    return data; 
 }
 
 /**
@@ -31,9 +62,16 @@ async function getGiphyApiResults(searchTerm) {
  */
 async function handleFormSubmit(event) {
   // YOUR CODE HERE
+  event.preventDefault();
+  const searchTerm = searchInput.value;
+  const resultsContainer = document.getElementById('gif-results');
+  resultsContainer.innerHTML = '';
+  const results = await getGiphyApiResults(searchTerm);
+  displayResults(results);
+  searchInput.value = '';
 }
 
-// searchForm.addEventListener("submit", handleFormSubmit)
+searchForm.addEventListener("submit", handleFormSubmit)
 
 /**
  * Handle fetching the next set of results from the Giphy API
@@ -49,4 +87,7 @@ async function handleShowMore(event) {
 window.onload = function () {
   // YOUR CODE HERE
   // Add any event handlers here
+
+  searchButton.addEventListener('click', handleFormSubmit)
+  //searchForm.addEventListener("submit", handleFormSubmit);
 }
